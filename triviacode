@@ -1,0 +1,128 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Node {
+    int playerNumber;
+    struct Node* next;
+};
+
+struct Node* createNode(int playerNumber) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->playerNumber = playerNumber;
+    newNode->next = NULL;
+    return newNode;
+}
+
+void enqueue(struct Node** rear, struct Node** front, int playerNumber) {
+    struct Node* newNode = createNode(playerNumber);
+    if (*rear == NULL) {
+        *rear = *front = newNode;
+        (*rear)->next = *front;
+    } else {
+        (*rear)->next = newNode;
+        *rear = newNode;
+        (*rear)->next = *front;
+    }
+}
+
+void dequeue(struct Node** front, struct Node** rear) {
+    if (*front == NULL) {
+        return;
+    }
+    if (*front == *rear) {
+        free(*front);
+        *front = *rear = NULL;
+    } else {
+        struct Node* temp = *front;
+        *front = (*front)->next;
+        (*rear)->next = *front;
+        free(temp);
+    }
+}
+
+int checkAnswer(char* correctAnswer, char* playerAnswer) {
+    return strcmp(correctAnswer, playerAnswer) == 0;
+}
+
+void playTriviaGame(int numPlayers) {
+    struct Node* rear = NULL;
+    struct Node* front = NULL;
+
+    for (int i = 1; i <= numPlayers; i++) {
+        enqueue(&rear, &front, i);
+    }
+
+    char* questions[] = {
+        "What is the largest ocean on Earth?",
+        "Who wrote 'Harry Potter'?",
+        "What is the capital of France?",
+        "Which planet is known as the Red Planet?",
+        "What is the hardest natural substance on Earth?",
+        "What is the longest river in the world?",
+        "Which country is known as the Land of the Rising Sun?",
+        "Who painted the Mona Lisa?",
+        "What is the smallest country in the world?",
+        "What is the most spoken language in the world?",
+        "Which mammal is known to have the most powerful bite?",
+        "Which chemical element has the symbol 'O'?",
+        "What is the fastest land animal?",
+        "Who was the first person to walk on the moon?",
+        "What is the national flower of Japan?",
+        "Which continent is the Sahara Desert located on?",
+        "What is the main ingredient in guacamole?",
+        "Which instrument has 88 keys?",
+        "Which bird is a symbol of peace?",
+        "What is the currency of the United Kingdom?"
+    };
+
+    char* correctAnswers[] = {
+        "Pacific",
+        "Rowling",
+        "Paris",
+        "Mars",
+        "Diamond",
+        "Nile",
+        "Japan",
+        "Da Vinci",
+        "Vatican",
+        "Mandarin",
+        "Hippopotamus",
+        "Oxygen",
+        "Cheetah",
+        "Neil Armstrong",
+        "Cherry Blossom",
+        "Africa",
+        "Avocado",
+        "Piano",
+        "Dove",
+        "Pound"
+    };
+
+    char playerAnswer[100];
+
+    while (front != rear) {
+        int randomIndex = rand() % 20;
+        printf("Player %d's turn! %s\n", front->playerNumber, questions[randomIndex]);
+        scanf("%s", playerAnswer);
+
+        if (checkAnswer(correctAnswers[randomIndex], playerAnswer)) {
+            printf("Correct! Player %d stays in the game.\n", front->playerNumber);
+            rear = front;
+            front = front->next;
+        } else {
+            printf("Incorrect! Player %d is eliminated.\n", front->playerNumber);
+            dequeue(&front, &rear);
+        }
+    }
+
+    printf("Player %d is the winner!\n", front->playerNumber);
+}
+
+int main() {
+    int numPlayers;
+    printf("Enter number of players: ");
+    scanf("%d", &numPlayers);
+    playTriviaGame(numPlayers);
+    return 0;
+}
